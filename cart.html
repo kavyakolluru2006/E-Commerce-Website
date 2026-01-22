@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header><h1>Shopping Cart</h1></header>
+    <main id="cart-items" class="items"></main>
+    <footer><p>&copy; 2025 ShopEasy</p></footer>
+
+    <script>
+        const cartItemsContainer = document.getElementById('cart-items');
+        let cart;
+        
+        try {
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+        } catch (e) {
+            console.error("Failed to load cart:", e);
+            cart = [];
+        }
+
+        if (cart.length === 0) {
+            cartItemsContainer.innerHTML = "<p>Your cart is empty.</p>";
+        } else {
+            cart.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `
+                    <img src="${item.image}" alt="${item.name}" style="width:100%; height:150px; object-fit:cover;">
+                    <h3>${item.name}</h3>
+                    <p>Price: ${item.price}</p>
+                    <button class="remove-btn" data-id="${item.name}">Remove</button>
+                `;
+                cartItemsContainer.appendChild(div);
+            });
+
+            // Calculate total
+            const total = cart.reduce((sum, item) => {
+                const price = Number(item.price.replace('$', ''));
+                return sum + price;
+            }, 0);
+            
+            const totalDiv = document.createElement('div');
+            totalDiv.className = 'cart-total';
+            totalDiv.innerHTML = `<h3>Total: $${total.toFixed(2)}</h3>`;
+            cartItemsContainer.appendChild(totalDiv);
+        }
+
+        // Remove item event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('remove-btn')) {
+                const itemName = e.target.getAttribute('data-id');
+                const updatedCart = cart.filter(item => item.name !== itemName);
+                localStorage.setItem('cart', JSON.stringify(updatedCart));
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
